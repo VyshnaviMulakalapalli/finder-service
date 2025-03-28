@@ -12,3 +12,13 @@ class QuoteRequest(models.Model):
 
     def __str__(self):
         return f"Quote request from {self.business.username} to {self.expert.username} - {self.status}"
+    
+class UserPreferences(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="preferences")
+    saved_location = models.CharField(max_length=255, blank=True, null=True)
+    saved_expertise = models.CharField(max_length=255, blank=True, null=True)
+    min_rating = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
+    last_searched_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Preferences for {self.user.username}"
