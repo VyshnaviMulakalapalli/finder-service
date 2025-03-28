@@ -40,3 +40,17 @@ class SubmitReviewView(generics.CreateAPIView):
             return Response({"error": "You cannot review yourself."}, status=400)
         
         serializer.save(reviewer=self.request.user)
+
+class UpdateDeleteReviewView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        review = super().get_object()
+
+        # Only allow the reviewer to edit/delete their own review
+        if review.reviewer != self.request.user:
+            raise PermissionDenied("You can only modify your own reviews.")
+        
+        return review
