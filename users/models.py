@@ -18,6 +18,13 @@ class Profile(models.Model):
     expertise = models.TextField(blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
 
+    @property
+    def rating(self):
+        reviews = self.user.reviews.all()
+        if reviews.exists():
+            return round(sum(review.rating for review in reviews) / reviews.count(), 2)
+        return 0.0
+
     def __str__(self):
         return self.user.username
 
