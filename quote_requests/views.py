@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework.exceptions import PermissionDenied
-from .models import QuoteRequest
-from .serializers import QuoteRequestSerializer
+from .models import QuoteRequest, UserPreferences
+from .serializers import QuoteRequestSerializer, UserPreferencesSerializer
 
 class CreateQuoteRequestView(generics.CreateAPIView):
     queryset = QuoteRequest.objects.all()
@@ -22,3 +22,18 @@ class CreateQuoteRequestView(generics.CreateAPIView):
         
         # Save the quote request
         serializer.save(business=business)
+
+class UserPreferencesView(generics.RetrieveUpdateAPIView):
+    queryset = UserPreferences.objects.all()
+    serializer_class = UserPreferencesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        # Get or create preferences for the logged-in user
+        preferences, created = UserPreferences.objects.get_or_create(user=self.request.user)
+        return preferences
+
+    def perform_update(self, serializer):
+        # Ensure the preferences are updated for the logged-in user
+        preferences = serializer.save(user=self.request.user)
+        return preferences
