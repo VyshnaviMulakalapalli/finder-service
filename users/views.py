@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework.permissions import AllowAny
-from .models import CustomUser, Profile
-from .serializers import RegisterSerializer, ProfileSerializer, ProfileUpdateSerializer
+from .models import CustomUser, Profile, Review
+from .serializers import RegisterSerializer, ProfileSerializer, ProfileUpdateSerializer, ReviewSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -28,3 +28,15 @@ class UpdateProfileView(APIView):
             serializer.save()
             return Response({"message": "Profile updated successfully", "profile": serializer.data})
         return Response(serializer.errors, status=400)
+    
+class SubmitReviewView(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        expert = serializer.validated_data['expert']
+        if self.request.user == expert:
+            return Response({"error": "You cannot review yourself."}, status=400)
+        
+        serializer.save(reviewer=self.request.user)
