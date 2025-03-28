@@ -1,11 +1,12 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, filters
 from rest_framework.permissions import AllowAny
 from .models import CustomUser, Profile, Review
-from .serializers import RegisterSerializer, ProfileSerializer, ProfileUpdateSerializer, ReviewSerializer
+from .serializers import RegisterSerializer, ProfileSerializer, ProfileUpdateSerializer, ReviewSerializer, ExpertSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -68,3 +69,31 @@ class ExpertReviewsView(ListAPIView):
     def get_queryset(self):
         expert_id = self.kwargs["expert_id"]
         return Review.objects.filter(expert__id=expert_id).order_by("-created_at")
+    
+class ExpertSearchView(generics.ListAPIView):
+    queryset = Profile.objects.filter(user__user_type='expert')
+    serializer_class = ExpertSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['location', 'expertise', 'user__username']
+
+    def get_queryset(self):
+        queryset = self.queryset
+        location = self.request.query_params.get('location')
+        expertise = self.request.query_params.get('expertise')
+        min_rating = self.request.query_params.get('min_rating')
+
+        if location and expertise and min_rating:
+            queryset = queryset.filter(
+                Q(location__icontains=location) &
+                Q(expertise__icontains=expertise) &
+                Q(rating__gte=min_rating)
+            )
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        if expertise:
+            queryset = queryset.filter(expertise__icontains=expertise)
+        if min_rating:
+            queryset = queryset.filter(rating__gte=min_rating)
+
+        return queryset
