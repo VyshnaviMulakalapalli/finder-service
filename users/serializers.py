@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Profile
+from .models import CustomUser, Profile, Review
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +28,16 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['location', 'expertise', 'bio']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.ReadOnlyField(source="reviewer.username")
+
+    class Meta:
+        model = Review
+        fields = ["id", "expert", "reviewer", "rating", "comment", "created_at"]
+        read_only_fields = ["id", "reviewer", "created_at"]
+
+    def validate_rating(self, value):
+        if value < 1 or value > 5:
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
+        return value
