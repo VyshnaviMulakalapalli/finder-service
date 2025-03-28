@@ -4,7 +4,8 @@ from .models import CustomUser, Profile, Review
 from .serializers import RegisterSerializer, ProfileSerializer, ProfileUpdateSerializer, ReviewSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -54,3 +55,16 @@ class UpdateDeleteReviewView(generics.RetrieveUpdateDestroyAPIView):
             raise PermissionDenied("You can only modify your own reviews.")
         
         return review
+    
+class ExpertReviewPagination(PageNumberPagination):
+    page_size = 5 
+    page_size_query_param = "page_size"
+    max_page_size = 20
+
+class ExpertReviewsView(ListAPIView):
+    serializer_class = ReviewSerializer
+    pagination_class = ExpertReviewPagination
+
+    def get_queryset(self):
+        expert_id = self.kwargs["expert_id"]
+        return Review.objects.filter(expert__id=expert_id).order_by("-created_at")
