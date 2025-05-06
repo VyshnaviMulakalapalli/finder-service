@@ -31,32 +31,43 @@ finder-service/
 ## Setup
 Clone the repo and install dependencies:
 
-`git clone https://github.com/VyshnaviMulakalapalli/finder-service.git`
+```bash
+git clone https://github.com/VyshnaviMulakalapalli/finder-service.git
+```
 
 Create a virtual environment and activate it:
 
-`python -m venv venv`
+```bash
+python -m venv venv`
+```
 
 Activate the virtual environment
 
-`.\venv\Scripts\activate`
+```bash
+.\venv\Scripts\activate
+```
 
 Install the requirements
 
-`pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
 Configure PostgreSQL in backend/settings.py by adding up your database NAME, USER, and PASSWORD.
 
 Run and apply migrations:
 
-`python manage.py makemigrations`
-
-`python manage.py migrate`
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
 
 Start the server:
 
-`python manage.py runserver`
+```bash
+python manage.py runserver
+```
 
 ## API Overview
 
