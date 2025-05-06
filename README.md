@@ -38,7 +38,7 @@ git clone https://github.com/VyshnaviMulakalapalli/finder-service.git
 Create a virtual environment and activate it:
 
 ```bash
-python -m venv venv`
+python -m venv venv
 ```
 
 Activate the virtual environment
